@@ -39,7 +39,9 @@ public class SessionServiceImpl implements SessionService {
     private void startSession() {
         logger.info("Initializing session...");
 
-        isCounting = true;
+        this.isCounting = true;
+
+        logger.info("Counter status: {}", isCounting);
 
         for (int time = sessionTime; time >= 0; time--) {
             try {
@@ -53,12 +55,20 @@ public class SessionServiceImpl implements SessionService {
     }
 
     private void closeSession() {
-        isCounting = false;
+        this.isCounting = false;
         lock.unlock();
         logger.info("Close session.");
     }
 
     public Boolean getIsCounting() {
         return this.isCounting;
+    }
+
+    public void setIsCounting(boolean isCounting) {
+        this.isCounting = isCounting;
+    }
+
+    public void setSessionTime(int sessionTime) {
+        this.sessionTime = sessionTime;
     }
 }
