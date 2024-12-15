@@ -1,0 +1,9 @@
+services:
+  mongo:
+    container_name: "mongo-voting-session-manager-service"
+    image: mongo
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: toor
+    ports:
+      - "27017:27017"

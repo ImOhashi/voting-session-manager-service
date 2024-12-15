@@ -10,11 +10,14 @@ spring:
   output:
     ansi:
       enabled: ALWAYS
+  data:
+    mongodb:
+      uri: ${MONGO_DB_URL:mongodb://root:toor@localhost:27017/admin}
 
 ### APPLICATION
 app:
   session:
-    time: 5
+    time: ${SESSION_TIME_SECONDS:60}
 
 ### LOGGING
 logging:
