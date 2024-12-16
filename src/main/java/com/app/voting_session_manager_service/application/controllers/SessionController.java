@@ -15,7 +15,7 @@ public class SessionController {
         this.sessionService = sessionService;
     }
 
-    @PostMapping("/start")
+    @PostMapping("/v1/start")
     public void startSession() {
         sessionService.execute();
     }

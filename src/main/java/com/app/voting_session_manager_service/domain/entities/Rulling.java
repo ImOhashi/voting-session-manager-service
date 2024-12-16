@@ -30,6 +30,10 @@ public class Rulling {
         this.votesList.add(vote);
     }
 
+    public String getTitle() {
+        return title;
+    }
+
     @Id
     @BsonId
     @BsonRepresentation(BsonType.OBJECT_ID)
@@ -44,7 +48,7 @@ public class Rulling {
         private String description;
         private List<Vote> votesList;
 
-        private Rulling build() {
+        public Rulling build() {
             return new Rulling(this);
         }
 

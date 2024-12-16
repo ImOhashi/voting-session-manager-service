@@ -6,7 +6,7 @@ import com.app.voting_session_manager_service.domain.exceptions.AssociateAlready
 import com.app.voting_session_manager_service.domain.exceptions.AssociateInvalidException;
 import com.app.voting_session_manager_service.domain.services.AssociateService;
 import com.app.voting_session_manager_service.domain.utils.CpfValidator;
-import com.app.voting_session_manager_service.domain.utils.NameValidator;
+import com.app.voting_session_manager_service.domain.utils.TextValidator;
 import com.app.voting_session_manager_service.resources.repositories.AssociateRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +48,7 @@ public class AssociateServiceImpl implements AssociateService {
     private void validateAssociateArguments(CreateAssociateRequestDTO createAssociateRequestDTO) {
         logger.info("Validating associate arguments...");
 
-        if (!CpfValidator.isValidCPF(createAssociateRequestDTO.cpf()) || !NameValidator.isValidName(createAssociateRequestDTO.name())) {
+        if (!CpfValidator.isValidCPF(createAssociateRequestDTO.cpf()) || !TextValidator.isValidText(createAssociateRequestDTO.name())) {
             logger.error("Associate invalid arguments!");
             throw new AssociateInvalidException("Associate invalid arguments!");
         }
