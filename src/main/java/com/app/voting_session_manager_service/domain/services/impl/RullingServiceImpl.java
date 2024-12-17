@@ -3,12 +3,10 @@ package com.app.voting_session_manager_service.domain.services.impl;
 import com.app.voting_session_manager_service.application.dtos.requests.RullingRegisterDTO;
 import com.app.voting_session_manager_service.application.dtos.requests.VoteRequestDTO;
 import com.app.voting_session_manager_service.application.dtos.responses.VoteResponseDTO;
+import com.app.voting_session_manager_service.domain.entities.Associate;
 import com.app.voting_session_manager_service.domain.entities.Rulling;
 import com.app.voting_session_manager_service.domain.entities.Vote;
-import com.app.voting_session_manager_service.domain.exceptions.AssociateNotFoundException;
-import com.app.voting_session_manager_service.domain.exceptions.InvalidVotingSessionException;
-import com.app.voting_session_manager_service.domain.exceptions.RullingAlreadyExistsException;
-import com.app.voting_session_manager_service.domain.exceptions.RullingTitleInvalidException;
+import com.app.voting_session_manager_service.domain.exceptions.*;
 import com.app.voting_session_manager_service.domain.services.RullingService;
 import com.app.voting_session_manager_service.domain.services.SessionService;
 import com.app.voting_session_manager_service.domain.utils.TextValidator;
@@ -66,7 +64,9 @@ public class RullingServiceImpl implements RullingService {
         return associateRepository.findByCpf(voteRequestDTO.cpf()).map(associate -> {
             logger.info("Validate rulling title...");
 
-            var  rulling = validateRullingTitleAndGetRulling(voteRequestDTO.rullingTitle());
+            var rulling = validateRullingTitleAndGetRulling(voteRequestDTO.rullingTitle());
+
+            validateIfVoteExists(rulling, associate);
 
             logger.info("Adding new vote to rulling={}", rulling.getTitle());
 
@@ -87,6 +87,15 @@ public class RullingServiceImpl implements RullingService {
             logger.error("Associate with cpf={} not found!", voteRequestDTO.cpf());
             return new AssociateNotFoundException("Associate with cpf=" + voteRequestDTO.cpf() + " not found!");
         });
+    }
+
+    private void validateIfVoteExists(Rulling rulling, Associate associate) {
+        var result = rulling.getVotesList().stream().filter(vote -> vote.associateCpf().equals(associate.getCpf()));
+
+        if (!result.toList().isEmpty()) {
+            logger.error("Vote already exists to associate with cpf={}", associate.getCpf());
+            throw new VoteAlreadyExistsException("Vote already exists to associate with cpf=" + associate.getCpf());
+        }
     }
 
     private Rulling validateRullingTitleAndGetRulling(String rullingTitle) {

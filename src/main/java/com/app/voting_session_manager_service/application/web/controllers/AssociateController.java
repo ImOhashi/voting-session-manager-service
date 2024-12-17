@@ -1,4 +1,4 @@
-package com.app.voting_session_manager_service.application.controllers;
+package com.app.voting_session_manager_service.application.web.controllers;
 
 import com.app.voting_session_manager_service.application.dtos.requests.CreateAssociateRequestDTO;
 import com.app.voting_session_manager_service.domain.services.AssociateService;

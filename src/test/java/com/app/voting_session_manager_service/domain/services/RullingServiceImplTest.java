@@ -1,9 +1,9 @@
 package com.app.voting_session_manager_service.domain.services;
 
-import com.app.voting_session_manager_service.domain.exceptions.AssociateNotFoundException;
-import com.app.voting_session_manager_service.domain.exceptions.InvalidVotingSessionException;
-import com.app.voting_session_manager_service.domain.exceptions.RullingAlreadyExistsException;
-import com.app.voting_session_manager_service.domain.exceptions.RullingTitleInvalidException;
+import com.app.voting_session_manager_service.domain.entities.Associate;
+import com.app.voting_session_manager_service.domain.entities.Vote;
+import com.app.voting_session_manager_service.domain.entities.enums.VoteClassification;
+import com.app.voting_session_manager_service.domain.exceptions.*;
 import com.app.voting_session_manager_service.factories.*;
 import com.app.voting_session_manager_service.resources.repositories.AssociateRepository;
 import com.app.voting_session_manager_service.resources.repositories.RullingRepository;
@@ -15,6 +15,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -154,6 +155,27 @@ public class RullingServiceImplTest {
         doReturn(Optional.of(rullingMock)).when(rullingRepository).findByTitle(any());
 
         assertThrows(InvalidVotingSessionException.class, () -> {
+            rullingService.voting(voteRequestDTOMock);
+        });
+    }
+
+    @Test
+    void testVoting_whenVoteAlreadyExists_shouldBeAnException() {
+        var voteRequestDTOMock = VoteRequestDTOFactory.sample();
+        var associateMock = new Associate("teste", "teste", "548.527.100-66");
+        var rullingMock = RullingFactory.sample();
+        var voteMock = VoteFactory.sample();
+
+        rullingMock.addNewVote(voteMock);
+
+        sessionService.setRullingTitle("Teste");
+
+        doReturn(Boolean.TRUE).when(sessionService).getIsCounting();
+        doReturn("Teste").when(sessionService).getRullingTitle();
+        doReturn(Optional.of(associateMock)).when(associateRepository).findByCpf(any());
+        doReturn(Optional.of(rullingMock)).when(rullingRepository).findByTitle(any());
+
+        assertThrows(VoteAlreadyExistsException.class, () -> {
             rullingService.voting(voteRequestDTOMock);
         });
     }
