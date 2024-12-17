@@ -94,8 +94,12 @@ public class SessionServiceImpl implements SessionService {
 
     private Optional<Result> sessionSurvey() {
         return rullingRepository.findByTitle(this.rullingTitle).map(rulling -> {
+            logger.info("Generating result message...");
+
             AtomicInteger sim = new AtomicInteger(0);
             AtomicInteger nao = new AtomicInteger(0);
+
+            logger.info("Calculating votes");
 
             rulling.getVotesList().forEach(vote -> {
                 if (vote.voteClassification().getDescription().equals(VoteClassification.SIM.getDescription())) {
@@ -107,12 +111,15 @@ public class SessionServiceImpl implements SessionService {
 
             this.rullingTitle = null;
 
+            logger.info("Return result message...");
+
             return new Result(rulling.getTitle(), sim.get(), nao.get());
         });
     }
 
     private void sendResultToTopic(Result result) {
         try {
+            logger.info("Send result to kafka topic={}", resultTopic);
             kafkaTemplate.send(resultTopic, result.toJson());
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
