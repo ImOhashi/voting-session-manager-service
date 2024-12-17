@@ -1,9 +1,11 @@
 package com.app.voting_session_manager_service.domain.services;
 
+import com.app.voting_session_manager_service.domain.exceptions.AssociateNotFoundException;
+import com.app.voting_session_manager_service.domain.exceptions.InvalidVotingSessionException;
 import com.app.voting_session_manager_service.domain.exceptions.RullingAlreadyExistsException;
 import com.app.voting_session_manager_service.domain.exceptions.RullingTitleInvalidException;
-import com.app.voting_session_manager_service.factories.RullingFactory;
-import com.app.voting_session_manager_service.factories.RullingRegisterDTOFactory;
+import com.app.voting_session_manager_service.factories.*;
+import com.app.voting_session_manager_service.resources.repositories.AssociateRepository;
 import com.app.voting_session_manager_service.resources.repositories.RullingRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +16,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -27,6 +30,12 @@ public class RullingServiceImplTest {
 
     @MockitoBean
     private RullingRepository rullingRepository;
+
+    @MockitoBean
+    private SessionService sessionService;
+
+    @MockitoBean
+    private AssociateRepository associateRepository;
 
     @Test
     void testRegister_whenRegisterAValidTitle_shouldBeRegister() {
@@ -63,6 +72,89 @@ public class RullingServiceImplTest {
 
         assertThrows(RullingTitleInvalidException.class, () -> {
             rullingService.register(rullingRegisterDTOMock);
+        });
+    }
+
+    @Test
+    void testVoting_whenSessionAndRullingOk_shouldBeVotingWithSuccess() {
+        var voteRequestDTOMock = VoteRequestDTOFactory.sample();
+        var associateMock = AssociateFactory.sample();
+        var rullingMock = RullingFactory.sample();
+        var voteMock = VoteFactory.sample();
+
+        rullingMock.addNewVote(voteMock);
+
+        sessionService.setRullingTitle("Teste");
+
+        doReturn(Boolean.TRUE).when(sessionService).getIsCounting();
+        doReturn("Teste").when(sessionService).getRullingTitle();
+        doReturn(Optional.of(associateMock)).when(associateRepository).findByCpf(any());
+        doReturn(Optional.of(rullingMock)).when(rullingRepository).findByTitle(any());
+        doReturn(rullingMock).when(rullingRepository).save(any());
+
+        var response = rullingService.voting(voteRequestDTOMock);
+
+        assertEquals(response.voteClassification().getDescription(), voteMock.voteClassification().getDescription());
+    }
+
+    @Test
+    void testVoting_whenSessionAndRullingOkButNotAssociate_shouldBeAnException() {
+        var voteRequestDTOMock = VoteRequestDTOFactory.sample();
+        var rullingMock = RullingFactory.sample();
+        var voteMock = VoteFactory.sample();
+
+        rullingMock.addNewVote(voteMock);
+
+        sessionService.setRullingTitle("Teste");
+
+        doReturn(Boolean.TRUE).when(sessionService).getIsCounting();
+        doReturn("Teste").when(sessionService).getRullingTitle();
+        doReturn(Optional.empty()).when(associateRepository).findByCpf(any());
+
+        assertThrows(AssociateNotFoundException.class, () -> {
+            rullingService.voting(voteRequestDTOMock);
+        });
+    }
+
+    @Test
+    void testVoting_whenSessionButNotRulling_shouldBeAnException() {
+        var voteRequestDTOMock = VoteRequestDTOFactory.sample();
+        var associateMock = AssociateFactory.sample();
+        var rullingMock = RullingFactory.sample();
+        var voteMock = VoteFactory.sample();
+
+        rullingMock.addNewVote(voteMock);
+
+        sessionService.setRullingTitle("Teste");
+
+        doReturn(Boolean.TRUE).when(sessionService).getIsCounting();
+        doReturn("Teste").when(sessionService).getRullingTitle();
+        doReturn(Optional.of(associateMock)).when(associateRepository).findByCpf(any());
+        doReturn(Optional.empty()).when(rullingRepository).findByTitle(any());
+
+        assertThrows(RullingTitleInvalidException.class, () -> {
+            rullingService.voting(voteRequestDTOMock);
+        });
+    }
+
+    @Test
+    void testVoting_whenSessionButNotSession_shouldBeAnException() {
+        var voteRequestDTOMock = VoteRequestDTOFactory.sample();
+        var associateMock = AssociateFactory.sample();
+        var rullingMock = RullingFactory.sample();
+        var voteMock = VoteFactory.sample();
+
+        rullingMock.addNewVote(voteMock);
+
+        sessionService.setRullingTitle("Teste");
+
+        doReturn(Boolean.FALSE).when(sessionService).getIsCounting();
+        doReturn("Teste").when(sessionService).getRullingTitle();
+        doReturn(Optional.of(associateMock)).when(associateRepository).findByCpf(any());
+        doReturn(Optional.of(rullingMock)).when(rullingRepository).findByTitle(any());
+
+        assertThrows(InvalidVotingSessionException.class, () -> {
+            rullingService.voting(voteRequestDTOMock);
         });
     }
 }

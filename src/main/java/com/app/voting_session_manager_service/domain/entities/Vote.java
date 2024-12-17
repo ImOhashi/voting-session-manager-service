@@ -4,5 +4,5 @@ import com.app.voting_session_manager_service.domain.entities.enums.VoteClassifi
 
 import java.util.UUID;
 
-public record Vote(UUID id, String associate, VoteClassification voteClassification) {
+public record Vote(String id, String associateCpf, VoteClassification voteClassification) {
 }

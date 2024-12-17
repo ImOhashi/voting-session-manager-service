@@ -34,6 +34,10 @@ public class Associate {
         return cpf;
     }
 
+    public String getName() {
+        return name;
+    }
+
     public static class Builder {
         private String name;
         private String cpf;

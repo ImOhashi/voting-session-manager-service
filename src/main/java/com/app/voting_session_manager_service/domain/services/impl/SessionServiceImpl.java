@@ -1,5 +1,6 @@
 package com.app.voting_session_manager_service.domain.services.impl;
 
+import com.app.voting_session_manager_service.application.dtos.requests.SessionRequestDTO;
 import com.app.voting_session_manager_service.domain.services.SessionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,18 +21,21 @@ public class SessionServiceImpl implements SessionService {
     private final Lock lock = new ReentrantLock();
 
     private Boolean isCounting = false;
+    private String rullingTitle;
 
     @Async
     @Override
-    public void execute() {
+    public void execute(SessionRequestDTO sessionRequestDTO) {
         if (!lock.tryLock() || isCounting) {
             logger.warn("Counter already in execution, try later");
             return;
         }
 
         try {
+            this.rullingTitle = sessionRequestDTO.rullingTitle();
             startSession();
         } finally {
+            this.rullingTitle = null;
             closeSession();
         }
     }
@@ -62,6 +66,14 @@ public class SessionServiceImpl implements SessionService {
 
     public Boolean getIsCounting() {
         return this.isCounting;
+    }
+
+    public String getRullingTitle() {
+        return this.rullingTitle;
+    }
+
+    public void setRullingTitle(String rullingTitle) {
+        this.rullingTitle = rullingTitle;
     }
 
     public void setIsCounting(boolean isCounting) {
