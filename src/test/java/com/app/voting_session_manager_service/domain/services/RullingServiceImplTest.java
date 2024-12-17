@@ -1,8 +1,6 @@
 package com.app.voting_session_manager_service.domain.services;
 
 import com.app.voting_session_manager_service.domain.entities.Associate;
-import com.app.voting_session_manager_service.domain.entities.Vote;
-import com.app.voting_session_manager_service.domain.entities.enums.VoteClassification;
 import com.app.voting_session_manager_service.domain.exceptions.*;
 import com.app.voting_session_manager_service.factories.*;
 import com.app.voting_session_manager_service.resources.repositories.AssociateRepository;
