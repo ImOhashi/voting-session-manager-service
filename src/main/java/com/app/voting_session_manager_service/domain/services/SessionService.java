@@ -11,4 +11,8 @@ public interface SessionService {
     String getRullingTitle();
 
     void setRullingTitle(String rullingTitle);
+
+    void setSessionTime(int sessionTime);
+
+    void setIsCounting(boolean isCounting);
 }

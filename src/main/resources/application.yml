@@ -13,11 +13,18 @@ spring:
   data:
     mongodb:
       uri: ${MONGO_DB_URL:mongodb://root:toor@localhost:27017/admin}
+  kafka:
+    producer:
+      bootstrap-servers: ${KAFKA_BROKER_URL:localhost:29092}
 
 ### APPLICATION
 app:
   session:
     time: ${SESSION_TIME_SECONDS:60}
+  kafka:
+    topics:
+      result-topic:
+        name: ${RESULT_TOPIC_NAME:result-topic}
 
 ### LOGGING
 logging:
