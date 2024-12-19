@@ -47,14 +47,12 @@ public class SessionServiceImpl implements SessionService {
     @Async
     @Override
     public void execute(SessionRequestDTO sessionRequestDTO) {
-        if (!lock.tryLock() || isCounting) {
-            logger.warn("Counter already in execution, try later");
+        if (!lock.tryLock() || isCounting || !validateSession(rullingTitle)) {
+            logger.warn("Counter action invalid!");
             return;
         }
 
         try {
-            validateSession(rullingTitle);
-
             this.rullingTitle = sessionRequestDTO.rullingTitle();
 
             startSession();
@@ -96,10 +94,13 @@ public class SessionServiceImpl implements SessionService {
         logger.info("Close session.");
     }
 
-    private void validateSession(String rullingTitle) {
+    private Boolean validateSession(String rullingTitle) {
         if(rullingRepository.findByTitle(rullingTitle).isEmpty()) {
-            throw new RullingTitleInvalidException("Rulling title is invalid!");
+            logger.error("Rulling title is invalid!");
+            return false;
         }
+
+        return true;
     }
 
     private Optional<Result> sessionSurvey() {
