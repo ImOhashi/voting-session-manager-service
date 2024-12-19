@@ -47,7 +47,7 @@ public class SessionServiceImpl implements SessionService {
     @Async
     @Override
     public void execute(SessionRequestDTO sessionRequestDTO) {
-        if (!lock.tryLock() || isCounting || !validateSession(rullingTitle)) {
+        if (!lock.tryLock() || isCounting || !validateSession(sessionRequestDTO.rullingTitle())) {
             logger.warn("Counter action invalid!");
             return;
         }
@@ -95,7 +95,7 @@ public class SessionServiceImpl implements SessionService {
     }
 
     private Boolean validateSession(String rullingTitle) {
-        if(rullingRepository.findByTitle(rullingTitle).isEmpty()) {
+        if (rullingRepository.findByTitle(rullingTitle).isEmpty()) {
             logger.error("Rulling title is invalid!");
             return false;
         }
