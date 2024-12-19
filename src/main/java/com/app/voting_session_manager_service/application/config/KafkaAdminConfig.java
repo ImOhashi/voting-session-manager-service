@@ -13,7 +13,7 @@ import java.util.HashMap;
 @Configuration
 public class KafkaAdminConfig {
 
-    @Value("${app.kafka.topic.result-topic}")
+    @Value("${app.kafka.topics.result-topic.name}")
     private String resultTopic;
 
     private final KafkaProperties properties;

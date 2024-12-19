@@ -33,6 +33,14 @@ logging:
     com:
       example: TRACE
 
+### SWAGGER
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /docs
+    operationsSorter: method
+
 ### ACTUATOR
 management:
   endpoint:

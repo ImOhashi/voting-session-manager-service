@@ -25,7 +25,7 @@ public class SessionServiceImpl implements SessionService {
     @Value("${app.session.time}")
     private Integer sessionTime;
 
-    @Value("${app.kafka.topic.result-topic}")
+    @Value("${app.kafka.topics.result-topic.name}")
     private String resultTopic;
 
     private final KafkaTemplate kafkaTemplate;
