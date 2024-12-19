@@ -57,6 +57,7 @@ class SessionServiceImplTest {
 
         doReturn(Optional.of(rullingMock)).when(rullingRepositoryMock).findByTitle(any());
         doReturn(Optional.of(rullingMock)).when(rullingRepositoryMock).findByTitle(any());
+        doReturn(Optional.of(rullingMock)).when(rullingRepositoryMock).findByTitle(any());
         doReturn(future).when(kafkaTemplateMock).send(any(), any());
 
         sessionService.setIsCounting(false);
@@ -74,7 +75,7 @@ class SessionServiceImplTest {
         var rullingMock = RullingFactory.sample();
 
         sessionService.setIsCounting(false);
-
+        doReturn(Optional.of(rullingMock)).when(rullingRepositoryMock).findByTitle(any());
         doReturn(Optional.of(rullingMock)).when(rullingRepositoryMock).findByTitle(any());
 
         sessionService.execute(sessionRequestDTOMock);
@@ -87,7 +88,6 @@ class SessionServiceImplTest {
     @Test
     void testLockShouldBeReleasedAfterSession() throws InterruptedException {
         var sessionRequestDTOMock = SessionRequestDTOFactory.sample();
-
 
         sessionService.setIsCounting(false);
 

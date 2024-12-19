@@ -3,6 +3,7 @@ package com.app.voting_session_manager_service.domain.services.impl;
 import com.app.voting_session_manager_service.application.dtos.requests.SessionRequestDTO;
 import com.app.voting_session_manager_service.domain.entities.Result;
 import com.app.voting_session_manager_service.domain.entities.enums.VoteClassification;
+import com.app.voting_session_manager_service.domain.exceptions.RullingTitleInvalidException;
 import com.app.voting_session_manager_service.domain.exceptions.SessionSurveyException;
 import com.app.voting_session_manager_service.domain.services.SessionService;
 import com.app.voting_session_manager_service.resources.repositories.RullingRepository;
@@ -25,7 +26,7 @@ public class SessionServiceImpl implements SessionService {
     @Value("${app.session.time}")
     private Integer sessionTime;
 
-    @Value("${app.kafka.topics.result-topic.name}")
+    @Value("${app.kafka.topic.result-topic}")
     private String resultTopic;
 
     private final KafkaTemplate kafkaTemplate;
@@ -52,7 +53,10 @@ public class SessionServiceImpl implements SessionService {
         }
 
         try {
+            validateSession(rullingTitle);
+
             this.rullingTitle = sessionRequestDTO.rullingTitle();
+
             startSession();
         } finally {
             closeSession();
@@ -90,6 +94,12 @@ public class SessionServiceImpl implements SessionService {
 
         lock.unlock();
         logger.info("Close session.");
+    }
+
+    private void validateSession(String rullingTitle) {
+        if(rullingRepository.findByTitle(rullingTitle).isEmpty()) {
+            throw new RullingTitleInvalidException("Rulling title is invalid!");
+        }
     }
 
     private Optional<Result> sessionSurvey() {
